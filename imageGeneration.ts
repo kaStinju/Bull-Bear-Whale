@@ -1,9 +1,13 @@
 import { createCanvas, loadImage } from "canvas";
-import { randomBytes } from "crypto";
-import { load } from "dotenv";
 import * as fs from "fs";
 
-export default async function drawPicture(ticker, startDate, endDate, prices) {
+export default async function drawPicture(
+  ticker,
+  startDate,
+  endDate,
+  prices,
+  firstPrice
+) {
   //create canvas
   const canvas = createCanvas(790, 460);
   const ctx = canvas.getContext("2d");
@@ -38,21 +42,26 @@ export default async function drawPicture(ticker, startDate, endDate, prices) {
   );
   ctx.drawImage(sign, 0, 0, imageSize.x, imageSize.y);
   //draw graph
-  drawGraph(startDate, endDate, prices, ctx);
+  drawGraph(startDate, endDate, prices, firstPrice, ctx);
 
-  //draw whale and objects
-  const whale = await loadImage(whalePath);
-  /*
-  NOISE FILTER
-  ctx.drawImage(whale, 0, 0, imageSize.x, imageSize.y);
-  let imgData = ctx.getImageData(0, 228, 335, 232);
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    imgData.data[i] -= Math.floor(Math.random() * 255);
-    imgData.data[i + 1] -= Math.floor(Math.random() * 255);
-    imgData.data[i + 2] -= Math.floor(Math.random() * 255);
+  //draw objects
+  const objectArray = fs.readdirSync(objectFolder);
+  for (let i = 0; i < objectArray.length; i++) {
+    if (Math.random() > 0.5) {
+      let image = await loadImage(`${objectFolder}/${objectArray[i]}`);
+      ctx.drawImage(image, 0, 0, imageSize.x, imageSize.y);
+    }
   }
-  ctx.putImageData(imgData, 0, 228);
-  */
+
+  //draw whale
+  const whale = await loadImage(whalePath);
+  ctx.drawImage(whale, 0, 0, imageSize.x, imageSize.y);
+
+  const eyeArray = fs.readdirSync(eyeFolder).sort();
+  const eye = await loadImage(
+    `${eyeFolder}/${eyeArray[Math.floor(Math.random() * eyeArray.length)]}`
+  );
+  ctx.drawImage(eye, 0, 0, imageSize.x, imageSize.y);
 
   //draw ticker
   ctx.save();
@@ -91,11 +100,20 @@ export default async function drawPicture(ticker, startDate, endDate, prices) {
   ctx.fillText(`${operator}${result}%`, 0, 0);
   ctx.restore();
 
+  //draw border
+  ctx.lineWidth = 4;
+  ctx.strokeStyle =
+    "#" +
+    Math.floor(Math.random() * 255).toString(16) +
+    Math.floor(Math.random() * 255).toString(16) +
+    Math.floor(Math.random() * 255).toString(16);
+  ctx.strokeRect(2, 2, 790 - 4, 460 - 4);
+
   const buffer = canvas.toBuffer("image/png");
   fs.writeFileSync("./image.png", buffer);
 }
 
-function drawGraph(startDate, endDate, prices, ctx) {
+function drawGraph(startDate, endDate, prices, firstPrice, ctx) {
   //graph bounds
   const boxX = 376;
   const boxY = 60;
@@ -123,7 +141,11 @@ function drawGraph(startDate, endDate, prices, ctx) {
   //ctx.fill();
   for (let i = 0; i < numberOfBars; i++) {
     if (i == 0) {
-      ctx.fillStyle = "#FFFFFF";
+      if (firstPrice <= prices[i]) {
+        ctx.fillStyle = "#2FF541";
+      } else {
+        ctx.fillStyle = "#F02323";
+      }
     } else if (i > 0) {
       if (prices2[i] > prices2[i - 1]) {
         ctx.fillStyle = "#2FF541";
