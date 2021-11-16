@@ -10,7 +10,7 @@ async function run() {
 
   const currency = "USD";
   const from = "2021-11-01";
-  const to = "2021-11-07";
+  const to = "2021-11-08";
   const key_covalent = process.env.API_KEY_COVALENT;
   /*const res = await axios.get(
     `https://api.covalenthq.com/v1/pricing/historical/USD/${ticker}/`,
@@ -28,14 +28,12 @@ async function run() {
   console.log(prices);*/
   //must reverse prices
   //drawPicture(ticker, from, to, prices.reverse());
-  drawPicture(
-    ticker,
-    from,
-    to,
-    [
-      32.09862, 33.030907, 33.21997, 31.865974, 32.00435, 31.291933, 31.847345,
-    ].reverse()
-  );
+  const prices = [
+    30.847345, 32.09862, 33.030907, 33.21997, 31.865974, 32.00435, 31.291933,
+    31.847345,
+  ];
+
+  drawPicture(ticker, from, to, prices.reverse().slice(1), prices[0]);
 }
 
 run();
