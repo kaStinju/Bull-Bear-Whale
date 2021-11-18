@@ -1,5 +1,6 @@
 import { createCanvas, loadImage } from "canvas";
 import * as fs from "fs";
+import { Z_ASCII } from "zlib";
 
 export default async function drawPicture(
   ticker,
@@ -18,7 +19,7 @@ export default async function drawPicture(
   const signFolder = "./images/sign";
   const objectFolder = "./images/objects";
   const eyeFolder = "./images/eyes";
-  const whalePath = "./images/whale.png";
+  const skinFolder = "./images/skin";
   const imageSize = { x: 790, y: 460 };
 
   //draw background
@@ -54,8 +55,17 @@ export default async function drawPicture(
   }
 
   //draw whale
-  const whale = await loadImage(whalePath);
-  ctx.drawImage(whale, 0, 0, imageSize.x, imageSize.y);
+  const skinArray = fs.readdirSync(skinFolder);
+
+  const skin =
+    Math.random() * 100 <= 1
+      ? await loadImage("./images/rare/greenGoblin.png")
+      : await loadImage(
+          `${skinFolder}/${
+            skinArray[Math.floor(Math.random() * skinArray.length)]
+          }`
+        );
+  ctx.drawImage(skin, 0, 0, imageSize.x, imageSize.y);
 
   const eyeArray = fs.readdirSync(eyeFolder).sort();
   const eye = await loadImage(
