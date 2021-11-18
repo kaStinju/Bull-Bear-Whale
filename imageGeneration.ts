@@ -8,16 +8,24 @@ const canvas = createCanvas(790, 460);
 const ctx = canvas.getContext("2d");
 const imageSize = { x: 790, y: 460 };
 
-export default async function drawPicture(
+export default async function imageGeneration(
   ticker,
   startDate,
   endDate,
   prices,
-  firstPrice
+  firstPrice,
+  firstDate
 ) {
   //draw image
   const background = await drawBackground(); //includes background, sand, & sign
-  const graph = await drawGraph(startDate, endDate, prices, firstPrice, ctx); //graph is overlay on sign
+  const graph = await drawGraph(
+    startDate,
+    endDate,
+    prices,
+    firstPrice,
+    firstDate,
+    ctx
+  ); //graph is overlay on sign
   const objects = await drawObjects();
   const character = await drawCharacter(); //only whale at the moment
 

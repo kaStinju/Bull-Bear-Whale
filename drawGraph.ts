@@ -1,4 +1,11 @@
-export default function drawGraph(startDate, endDate, prices, firstPrice, ctx) {
+export default function drawGraph(
+  startDate,
+  endDate,
+  prices,
+  firstPrice,
+  firstDate,
+  ctx
+) {
   //graph bounds
   const boxX = 376;
   const boxY = 60;
@@ -68,6 +75,6 @@ export default function drawGraph(startDate, endDate, prices, firstPrice, ctx) {
   ctx.translate(390, 215);
   ctx.rotate(270 * (Math.PI / 180));
   ctx.font = "10px sans-serif";
-  ctx.fillText(`${startDate} --> ${endDate}`, 0, 0);
+  ctx.fillText(`${firstDate} --> ${endDate}`, 0, 0);
   ctx.restore();
 }
