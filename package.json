@@ -12,7 +12,8 @@
     "form-data": "^4.0.0"
   },
   "scripts": {
-    "start": "npx ts-node index.ts"
+    "start": "npx ts-node index.ts",
+    "rinkeby": "npx ts-node uploadFile.ts"
   },
   "devDependencies": {
     "@types/node": "^16.11.7",

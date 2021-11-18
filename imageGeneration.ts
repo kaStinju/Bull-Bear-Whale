@@ -1,6 +1,12 @@
 import { createCanvas, loadImage } from "canvas";
 import * as fs from "fs";
+import drawGraph from "./drawGraph";
 import { Z_ASCII } from "zlib";
+
+//create canvas
+const canvas = createCanvas(790, 460);
+const ctx = canvas.getContext("2d");
+const imageSize = { x: 790, y: 460 };
 
 export default async function drawPicture(
   ticker,
@@ -9,69 +15,11 @@ export default async function drawPicture(
   prices,
   firstPrice
 ) {
-  //create canvas
-  const canvas = createCanvas(790, 460);
-  const ctx = canvas.getContext("2d");
-
   //draw image
-  const backgroundsFolder = "./images/backgrounds";
-  const sandFolder = "./images/sand";
-  const signFolder = "./images/sign";
-  const objectFolder = "./images/objects";
-  const eyeFolder = "./images/eyes";
-  const skinFolder = "./images/skin";
-  const imageSize = { x: 790, y: 460 };
-
-  //draw background
-  const backgroundArray = fs.readdirSync(backgroundsFolder);
-  const background = await loadImage(
-    `${backgroundsFolder}/${
-      backgroundArray[Math.floor(Math.random() * backgroundArray.length)]
-    }`
-  );
-  ctx.drawImage(background, 0, 0, imageSize.x, imageSize.y);
-
-  const sandArray = fs.readdirSync(sandFolder);
-  const sand = await loadImage(
-    `${sandFolder}/${sandArray[Math.floor(Math.random() * sandArray.length)]}`
-  );
-  ctx.drawImage(sand, 0, 0, imageSize.x, imageSize.y);
-
-  const signArray = fs.readdirSync(signFolder);
-  const sign = await loadImage(
-    `${signFolder}/${signArray[Math.floor(Math.random() * signArray.length)]}`
-  );
-  ctx.drawImage(sign, 0, 0, imageSize.x, imageSize.y);
-  //draw graph
-  drawGraph(startDate, endDate, prices, firstPrice, ctx);
-
-  //draw objects
-  const objectArray = fs.readdirSync(objectFolder);
-  for (let i = 0; i < objectArray.length; i++) {
-    if (Math.random() > 0.5) {
-      let image = await loadImage(`${objectFolder}/${objectArray[i]}`);
-      ctx.drawImage(image, 0, 0, imageSize.x, imageSize.y);
-    }
-  }
-
-  //draw whale
-  const skinArray = fs.readdirSync(skinFolder);
-
-  const skin =
-    Math.random() * 100 <= 1
-      ? await loadImage("./images/rare/greenGoblin.png")
-      : await loadImage(
-          `${skinFolder}/${
-            skinArray[Math.floor(Math.random() * skinArray.length)]
-          }`
-        );
-  ctx.drawImage(skin, 0, 0, imageSize.x, imageSize.y);
-
-  const eyeArray = fs.readdirSync(eyeFolder).sort();
-  const eye = await loadImage(
-    `${eyeFolder}/${eyeArray[Math.floor(Math.random() * eyeArray.length)]}`
-  );
-  ctx.drawImage(eye, 0, 0, imageSize.x, imageSize.y);
+  const background = await drawBackground(); //includes background, sand, & sign
+  const graph = await drawGraph(startDate, endDate, prices, firstPrice, ctx); //graph is overlay on sign
+  const objects = await drawObjects();
+  const character = await drawCharacter(); //only whale at the moment
 
   //draw ticker
   ctx.save();
@@ -123,76 +71,60 @@ export default async function drawPicture(
   fs.writeFileSync("./image.png", buffer);
 }
 
-function drawGraph(startDate, endDate, prices, firstPrice, ctx) {
-  //graph bounds
-  const boxX = 376;
-  const boxY = 60;
-  const boxWidth = 336;
-  const boxHeight = 198;
-
-  //graph size
-  const graphX = boxX + 50;
-  const graphY = 60;
-  const graphWidth = boxWidth - 50;
-  const graphHeight = 198;
-
-  //bar variables + % change
-  const largest = Math.max(...prices);
-  const smallest = Math.min(...prices) * 0.85;
-  const prices2 = prices
-    .map((x) => x - smallest)
-    .map((x) => x / (largest - smallest));
-  const numberOfBars = prices.length;
-  const barWidth = graphWidth / numberOfBars;
-
-  //draw graph
-  //ctx.rect(graphX, graphY, graphWidth, graphHeight);
-  //ctx.fillStyle = "blue";
-  //ctx.fill();
-  for (let i = 0; i < numberOfBars; i++) {
-    if (i == 0) {
-      if (firstPrice <= prices[i]) {
-        ctx.fillStyle = "#2FF541";
-      } else {
-        ctx.fillStyle = "#F02323";
-      }
-    } else if (i > 0) {
-      if (prices2[i] > prices2[i - 1]) {
-        ctx.fillStyle = "#2FF541";
-      } else {
-        ctx.fillStyle = "#F02323";
-      }
-    }
-    const barX =
-      graphWidth / 2 - barWidth * (numberOfBars / 2) + graphX + barWidth * i;
-    ctx.fillRect(
-      barX,
-      graphY + graphHeight * (1 - prices2[i]),
-      barWidth,
-      graphHeight * prices2[i]
-    );
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "black";
-    ctx.strokeRect(
-      barX,
-      graphY + graphHeight * (1 - prices2[i]),
-      barWidth,
-      graphHeight * prices2[i]
-    );
-  }
-  //highest and lowest text
-  ctx.fillStyle = "#000000";
-  ctx.fillText(largest.toPrecision(7).toString(), boxX + 2.5, boxY + 5);
-  ctx.fillText(
-    smallest.toPrecision(7).toString(),
-    boxX + 2.5,
-    boxY + boxHeight - 5
+async function drawBackground() {
+  const backgroundsFolder = "./images/backgrounds";
+  const backgroundArray = fs.readdirSync(backgroundsFolder);
+  const background = await loadImage(
+    `${backgroundsFolder}/${
+      backgroundArray[Math.floor(Math.random() * backgroundArray.length)]
+    }`
   );
-  //draw date
-  ctx.save();
-  ctx.translate(390, 215);
-  ctx.rotate(270 * (Math.PI / 180));
-  ctx.font = "10px sans-serif";
-  ctx.fillText(`${startDate} --> ${endDate}`, 0, 0);
-  ctx.restore();
+  ctx.drawImage(background, 0, 0, imageSize.x, imageSize.y);
+
+  const sandFolder = "./images/sand";
+  const sandArray = fs.readdirSync(sandFolder);
+  const sand = await loadImage(
+    `${sandFolder}/${sandArray[Math.floor(Math.random() * sandArray.length)]}`
+  );
+  ctx.drawImage(sand, 0, 0, imageSize.x, imageSize.y);
+
+  const signFolder = "./images/sign";
+  const signArray = fs.readdirSync(signFolder);
+  const sign = await loadImage(
+    `${signFolder}/${signArray[Math.floor(Math.random() * signArray.length)]}`
+  );
+  ctx.drawImage(sign, 0, 0, imageSize.x, imageSize.y);
+}
+
+async function drawCharacter() {
+  const skinFolder = "./images/skin";
+  const eyeFolder = "./images/eyes";
+
+  const skinArray = fs.readdirSync(skinFolder);
+  const skin =
+    Math.random() * 100 <= 1
+      ? await loadImage("./images/rare/greenGoblin.png")
+      : await loadImage(
+          `${skinFolder}/${
+            skinArray[Math.floor(Math.random() * skinArray.length)]
+          }`
+        );
+  ctx.drawImage(skin, 0, 0, imageSize.x, imageSize.y);
+
+  const eyeArray = fs.readdirSync(eyeFolder).sort();
+  const eye = await loadImage(
+    `${eyeFolder}/${eyeArray[Math.floor(Math.random() * eyeArray.length)]}`
+  );
+  ctx.drawImage(eye, 0, 0, imageSize.x, imageSize.y);
+}
+
+async function drawObjects() {
+  const objectFolder = "./images/objects";
+  const objectArray = fs.readdirSync(objectFolder);
+  for (let i = 0; i < objectArray.length; i++) {
+    if (Math.random() > 0.5) {
+      let image = await loadImage(`${objectFolder}/${objectArray[i]}`);
+      ctx.drawImage(image, 0, 0, imageSize.x, imageSize.y);
+    }
+  }
 }
