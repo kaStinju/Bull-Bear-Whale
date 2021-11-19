@@ -2,6 +2,7 @@ import { createCanvas, loadImage } from "canvas";
 import * as fs from "fs";
 import drawGraph from "./drawGraph";
 import { Z_ASCII } from "zlib";
+import upload from "./uploadFileRinkeby";
 
 //create canvas
 const canvas = createCanvas(790, 460);
@@ -27,8 +28,8 @@ export default async function imageGeneration(
     firstDate,
     ctx
   ); //graph is overlay on sign
-  const objects = await drawObjects();
-  const character = await drawCharacter(); //only whale at the moment
+  const objects = await drawObjects(); //returns string of numbers
+  const character = await drawCharacter(); //returns whale and eyes
 
   //draw ticker
   ctx.save();
@@ -64,7 +65,8 @@ export default async function imageGeneration(
     ctx.fillStyle = "#00FF00";
   }
   const result = change.toFixed(1);
-  ctx.fillText(`${operator}${result}%`, 0, 0);
+  const changeFinal = `${operator}${result}%`;
+  ctx.fillText(changeFinal, 0, 0);
   ctx.restore();
 
   //draw border
@@ -73,12 +75,14 @@ export default async function imageGeneration(
     Math.floor(Math.random() * 255).toString(16) +
     Math.floor(Math.random() * 255).toString(16) +
     Math.floor(Math.random() * 255).toString(16);
-  ctx.strokeRect(2, 2, 790 - 4, 460 - 4);
   ctx.lineWidth = 4;
-  ctx.strokeStyle = randBorder;
+  ctx.strokeStyle = "#699326";
+  ctx.strokeRect(2, 2, 790 - 4, 460 - 4);
 
   const buffer = canvas.toBuffer("image/png");
   fs.writeFileSync("./image.png", buffer);
+
+  return { background, objects, character, randBorder, changeFinal };
 }
 
 async function drawBackground() {

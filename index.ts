@@ -2,6 +2,7 @@ import axios from "axios";
 import * as dotenv from "dotenv";
 import imageGeneration from "./imageGeneration";
 import { format, subDays } from "date-fns";
+import upload from "./uploadFileRinkeby";
 
 async function run() {
   dotenv.config();
@@ -43,7 +44,7 @@ async function run() {
     31.847345,
   ];*/
 
-  imageGeneration(
+  const info = await imageGeneration(
     ticker,
     from,
     to,
@@ -51,6 +52,63 @@ async function run() {
     prices[0],
     firstDate
   );
+  console.log(info);
+  const name = `${ticker} from ${lastDate} to ${firstDate}`;
+
+  upload(name, ``, attributes(info));
+}
+
+function attributes(meta) {
+  const background = meta.background.randBackground.split("/")[3].split(".")[0];
+  const sand = meta.background.randSand.split("/")[3].split(".")[0];
+  const sign = meta.background.randSign.split("/")[3].split(".")[0];
+  const objects = meta.objects;
+  const skin = meta.character.randSkin
+    .split("/")
+    [meta.character.randSkin.split("/").length - 1].split(".")[0];
+  const eye = meta.character.randEye.split("/")[3].split(".")[0];
+  const border = meta.randBorder;
+  const change = meta.changeFinal;
+  const attribute = [
+    {
+      "trait_type": "Background",
+      "value": background,
+    },
+    {
+      "trait_type": "Sand",
+      "value": sand,
+    },
+    {
+      "trait_type": "Sign",
+      "value": sign,
+    },
+    {
+      "trait_type": "Skin",
+      "value": skin,
+    },
+    {
+      "trait_type": "Eye",
+      "value": eye,
+    },
+    {
+      "trait_type": "Objects",
+      "value": objects,
+    },
+    {
+      "trait_type": "Sign",
+      "value": sign,
+    },
+    {
+      "trait_type": "Border",
+      "value": border,
+    },
+    {
+      "display_type": "number",
+      "trait_type": "Generation",
+      "value": 0,
+    },
+  ];
+  return attribute;
 }
 
 run();
