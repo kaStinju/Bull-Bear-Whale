@@ -26,7 +26,7 @@ async function uploadMetadata(url, name, description, attributes) {
       name,
       description,
       file_url: url,
-      attributes,
+      attributes: attributes,
     },
     {
       headers: {

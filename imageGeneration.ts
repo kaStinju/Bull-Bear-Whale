@@ -137,13 +137,13 @@ async function drawCharacter() {
   return { randSkin, randEye };
 }
 
-async function drawObjects() {
+async function drawObjects(): Promise<string> {
   const objectFolder = "./images/objects";
-  const objectArray = fs.readdirSync(objectFolder);
-  let randObjects = "";
+  const objectArray = fs.readdirSync(objectFolder).sort();
+  let randObjects = "things ";
   for (let i = 0; i < objectArray.length; i++) {
     if (Math.random() < 0.33) {
-      randObjects += i;
+      randObjects += i.toString();
       let randObject = `${objectFolder}/${objectArray[i]}`;
       let object = await loadImage(randObject);
       ctx.drawImage(object, 0, 0, imageSize.x, imageSize.y);
