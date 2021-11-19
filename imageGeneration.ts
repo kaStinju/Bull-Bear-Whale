@@ -17,7 +17,8 @@ export default async function imageGeneration(
   firstDate
 ) {
   //draw image
-  const background = await drawBackground(); //includes background, sand, & sign
+  const background = await drawBackground(); //returns randBackground, randSand, randSign
+
   const graph = await drawGraph(
     startDate,
     endDate,
@@ -67,13 +68,14 @@ export default async function imageGeneration(
   ctx.restore();
 
   //draw border
-  ctx.lineWidth = 4;
-  ctx.strokeStyle =
+  const randBorder =
     "#" +
     Math.floor(Math.random() * 255).toString(16) +
     Math.floor(Math.random() * 255).toString(16) +
     Math.floor(Math.random() * 255).toString(16);
   ctx.strokeRect(2, 2, 790 - 4, 460 - 4);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = randBorder;
 
   const buffer = canvas.toBuffer("image/png");
   fs.writeFileSync("./image.png", buffer);
@@ -82,26 +84,29 @@ export default async function imageGeneration(
 async function drawBackground() {
   const backgroundsFolder = "./images/backgrounds";
   const backgroundArray = fs.readdirSync(backgroundsFolder);
-  const background = await loadImage(
-    `${backgroundsFolder}/${
-      backgroundArray[Math.floor(Math.random() * backgroundArray.length)]
-    }`
-  );
+  const randBackground = `${backgroundsFolder}/${
+    backgroundArray[Math.floor(Math.random() * backgroundArray.length)]
+  }`;
+  const background = await loadImage(randBackground);
   ctx.drawImage(background, 0, 0, imageSize.x, imageSize.y);
 
   const sandFolder = "./images/sand";
   const sandArray = fs.readdirSync(sandFolder);
-  const sand = await loadImage(
-    `${sandFolder}/${sandArray[Math.floor(Math.random() * sandArray.length)]}`
-  );
+  const randSand = `${sandFolder}/${
+    sandArray[Math.floor(Math.random() * sandArray.length)]
+  }`;
+  const sand = await loadImage(randSand);
   ctx.drawImage(sand, 0, 0, imageSize.x, imageSize.y);
 
   const signFolder = "./images/sign";
   const signArray = fs.readdirSync(signFolder);
-  const sign = await loadImage(
-    `${signFolder}/${signArray[Math.floor(Math.random() * signArray.length)]}`
-  );
+  const randSign = `${signFolder}/${
+    signArray[Math.floor(Math.random() * signArray.length)]
+  }`;
+  const sign = await loadImage(randSign);
   ctx.drawImage(sign, 0, 0, imageSize.x, imageSize.y);
+
+  return { randBackground, randSand, randSign };
 }
 
 async function drawCharacter() {
@@ -109,30 +114,36 @@ async function drawCharacter() {
   const eyeFolder = "./images/eyes";
 
   const skinArray = fs.readdirSync(skinFolder);
-  const skin =
+  const randSkin =
     Math.random() * 100 <= 1
-      ? await loadImage("./images/rare/greenGoblin.png")
-      : await loadImage(
-          `${skinFolder}/${
-            skinArray[Math.floor(Math.random() * skinArray.length)]
-          }`
-        );
+      ? "./images/rare/greenGoblin.png"
+      : `${skinFolder}/${
+          skinArray[Math.floor(Math.random() * skinArray.length)]
+        }`;
+  const skin = await loadImage(randSkin);
   ctx.drawImage(skin, 0, 0, imageSize.x, imageSize.y);
 
   const eyeArray = fs.readdirSync(eyeFolder).sort();
-  const eye = await loadImage(
-    `${eyeFolder}/${eyeArray[Math.floor(Math.random() * eyeArray.length)]}`
-  );
+  const randEye = `${eyeFolder}/${
+    eyeArray[Math.floor(Math.random() * eyeArray.length)]
+  }`;
+  const eye = await loadImage(randEye);
   ctx.drawImage(eye, 0, 0, imageSize.x, imageSize.y);
+
+  return { randSkin, randEye };
 }
 
 async function drawObjects() {
   const objectFolder = "./images/objects";
   const objectArray = fs.readdirSync(objectFolder);
+  let randObjects = "";
   for (let i = 0; i < objectArray.length; i++) {
-    if (Math.random() > 0.5) {
-      let image = await loadImage(`${objectFolder}/${objectArray[i]}`);
-      ctx.drawImage(image, 0, 0, imageSize.x, imageSize.y);
+    if (Math.random() < 0.33) {
+      randObjects += i;
+      let randObject = `${objectFolder}/${objectArray[i]}`;
+      let object = await loadImage(randObject);
+      ctx.drawImage(object, 0, 0, imageSize.x, imageSize.y);
     }
   }
+  return randObjects;
 }
