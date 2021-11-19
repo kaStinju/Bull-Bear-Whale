@@ -19,13 +19,14 @@ async function uploadFile() {
   return url;
 }
 
-async function uploadMetadata(url, name, description) {
+async function uploadMetadata(url, name, description, attributes) {
   const res = await axios.post(
     "https://api.nftport.xyz/v0/metadata",
     {
       name,
       description,
       file_url: url,
+      attributes: attributes,
     },
     {
       headers: {
@@ -56,10 +57,8 @@ async function mint(uri, address) {
   console.log(res.data);
 }
 
-async function run() {
+export default async function upload(name, description, attributes) {
   const url = await uploadFile();
-  const uri = await uploadMetadata(url, "Bubba X1", "Numbero");
+  const uri = await uploadMetadata(url, name, description, attributes);
   await mint(uri, "0x6b690c101122c5e1271580cc5732cdbdfa57d377");
 }
-
-run();

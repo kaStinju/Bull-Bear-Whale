@@ -8,12 +8,13 @@
   "dependencies": {
     "axios": "^0.24.0",
     "canvas": "^2.8.0",
+    "date-fns": "^2.25.0",
     "dotenv": "^10.0.0",
     "form-data": "^4.0.0"
   },
   "scripts": {
     "start": "npx ts-node index.ts",
-    "rinkeby": "npx ts-node uploadFile.ts"
+    "rinkeby": "npx ts-node uploadFileRinkeby.ts"
   },
   "devDependencies": {
     "@types/node": "^16.11.7",
