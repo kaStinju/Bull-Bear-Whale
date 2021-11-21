@@ -13,7 +13,8 @@ async function run() {
   const firstDate = format(subDays(new Date(), 6), "yyyy-MM-dd"); //first bar on chart
   const beforeDate = format(subDays(new Date(), 7), "yyyy-MM-dd"); //day before week
 
-  const listOfTokens = ["ETH", "LRC", "SHIB", "LINK", "MATIC"];
+  //const listOfTokens = ["ETH", "LRC", "SHIB", "LINK", "MATIC"];
+  const listOfTokens = ["MATIC"];
   for (let i = 0; i < listOfTokens.length; i++) {
     //get token prices
     const ticker = listOfTokens[i];
@@ -44,7 +45,7 @@ async function run() {
       prices[0],
       firstDate
     );
-    const name = `${ticker} from ${lastDate} to ${firstDate}`;
+    const name = `${ticker} from ${firstDate} to ${lastDate}`;
     const attributes = await makeAttribute(info);
 
     //nft port + ipfs storage + meta

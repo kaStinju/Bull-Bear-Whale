@@ -40,6 +40,8 @@ async function uploadMetadata(url, name, description, attributes) {
 }
 
 async function mint(uri, address) {
+  //rinkeby 0xCCAebaA0C8A1a1fBE7e9A879167ae7f74FeE6a5d
+  //polygon 0xe42CFaA543F2c326364c57Cf26Dc0b0604F0A901
   const res = await axios.post(
     "https://api.nftport.xyz/v0/mints/customizable",
     {

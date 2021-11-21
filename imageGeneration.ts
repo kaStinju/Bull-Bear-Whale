@@ -76,7 +76,7 @@ export default async function imageGeneration(
     Math.floor(Math.random() * 255).toString(16) +
     Math.floor(Math.random() * 255).toString(16);
   ctx.lineWidth = 4;
-  ctx.strokeStyle = "#699326";
+  ctx.strokeStyle = randBorder;
   ctx.strokeRect(2, 2, 790 - 4, 460 - 4);
 
   const buffer = canvas.toBuffer("image/png");
